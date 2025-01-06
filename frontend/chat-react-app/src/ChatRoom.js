@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef  } from "react";
 import { Stomp } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import axios from "axios";
@@ -10,6 +10,12 @@ const ChatRoom = () => {
     const [message, setMessage] = useState("");
     const [stompClient, setStompClient] = useState(null);
 
+    const messagesEndRef = useRef(null); // 스크롤을 위한 ref
+
+    // 스크롤을 가장 아래로 이동하는 함수
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     const setNicknameHandler = () => {
         if (nickname.trim()) {
@@ -33,6 +39,10 @@ const ChatRoom = () => {
             alert("닉네임을 먼저 설정해주세요.");
         }
     };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     useEffect(() => {
         axios.get("http://localhost:9090/messages").then((response) => {
@@ -82,6 +92,7 @@ const ChatRoom = () => {
                         <strong>{msg.sender}</strong>: {msg.content} <em>({msg.timestamp})</em>
                     </div>
                 ))}
+                <div ref={messagesEndRef} />
             </div>
             <input
                 type="text"
