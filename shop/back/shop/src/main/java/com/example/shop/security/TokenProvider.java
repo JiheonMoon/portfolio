@@ -30,22 +30,22 @@ public class TokenProvider {
 	}
 	
 	//Access Token 생성
-    public String createAccessToken(UserEntity user) {
-        return create(user, accessTokenDate);
+    public String createAccessToken(String userId) {
+        return create(userId, accessTokenDate);
     }
 
     //Refresh Token 생성
-    public String createRefreshToken(UserEntity user) {
-        return create(user, refreshTokenDate);
+    public String createRefreshToken(String userId) {
+        return create(userId, refreshTokenDate);
     }
 
 	// JWT 토큰 생성
-	public String create(UserEntity userEntity, Date expiryDate) {
+	public String create(String userId, Date expiryDate) {
 		
 
 		return Jwts.builder().signWith(key, SignatureAlgorithm.HS256) // 서명
-				.setSubject(Integer.toString(userEntity.getUserId())) // sub
-				.setIssuer("MovieStar") // iss
+				.setSubject(userId) // sub
+				.setIssuer("Jiheon") // iss
 				.setIssuedAt(new Date()) // iat
 				.setExpiration(expiryDate) // exp
 				.compact();
