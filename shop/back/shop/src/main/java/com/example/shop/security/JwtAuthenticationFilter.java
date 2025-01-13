@@ -33,8 +33,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 		try {
 			String accessToken = parseCookieToken(request, "access_token");
+			log.info(accessToken);
 			String refreshToken = parseCookieToken(request, "refresh_token");
-
+			log.info(refreshToken);
 			if (accessToken != null && !accessToken.equalsIgnoreCase("null")) {
 				if (tokenProvider.validateToken(accessToken)) {
 					authenticateUser(accessToken, request);

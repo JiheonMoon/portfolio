@@ -25,6 +25,12 @@ public class UserService {
 	@Autowired
     private PasswordEncoder passwordEncoder;
 	
+	public UserEntity getUserById(String userId) {
+		int id = Integer.parseInt(userId);
+		return repository.findById(id).orElseThrow(() -> new RuntimeException("Invalid userId"));
+		
+	}
+	
 	public UserEntity signup(UserDTO dto) {
 		if (repository.existsByUsername(dto.getUsername())) {
 	        throw new RuntimeException("Username already exists");
@@ -66,17 +72,19 @@ public class UserService {
 	}
 	
 	public void logout(UserDTO dto, HttpServletResponse response) {
-        UserEntity user = repository.findByUsername(dto.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+	    if (dto != null) {
+	        UserEntity user = repository.findByUsername(dto.getUsername())
+	                .orElseThrow(() -> new RuntimeException("User not found"));
+	        user.setRefreshToken(null);
+	        repository.save(user);
+	    }
+	    
+	    // 토큰 제거
+	    ResponseCookie accessTokenCookie = CookieUtil.deleteCookie("access_token");
+	    ResponseCookie refreshTokenCookie = CookieUtil.deleteCookie("refresh_token");
 
-        // Refresh Token 제거
-        user.setRefreshToken(null);
-        repository.save(user);
-        
-        ResponseCookie accessTokenCookie = CookieUtil.deleteCookie("access_token");
-        ResponseCookie refreshTokenCookie = CookieUtil.deleteCookie("refresh_token");
+	    response.addHeader("Set-Cookie", accessTokenCookie.toString());
+	    response.addHeader("Set-Cookie", refreshTokenCookie.toString());
+	}
 
-        response.addHeader("Set-Cookie", accessTokenCookie.toString());
-        response.addHeader("Set-Cookie", refreshTokenCookie.toString());
-    }
 }
