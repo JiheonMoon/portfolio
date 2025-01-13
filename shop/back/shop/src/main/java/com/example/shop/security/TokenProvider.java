@@ -1,10 +1,12 @@
 package com.example.shop.security;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.shop.entity.UserEntity;
@@ -24,10 +26,9 @@ public class TokenProvider {
 	private final Date accessTokenDate =  Date.from(Instant.now().plus(1, ChronoUnit.DAYS)); // 만료 기간 설정 (1일)
 	private final Date refreshTokenDate =  Date.from(Instant.now().plus(7, ChronoUnit.DAYS)); // 만료 기간 설정 (7일)
 
-	// Key 생성
-	public TokenProvider() {
-		this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-	}
+	public TokenProvider(@Value("${jwt.secret}") String secretKey) {
+        this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
 	
 	//Access Token 생성
     public String createAccessToken(String userId) {
